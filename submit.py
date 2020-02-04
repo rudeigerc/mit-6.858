@@ -11,7 +11,7 @@ def main(filename):
     if not os.path.exists(KEY_FILE):
         print("Please visit https://6858.scripts.mit.edu/2020/handin.py/")
         print("and enter your API key.")
-        key = raw_input("Key: ").strip()
+        key = input("Key: ").strip()
         with open(KEY_FILE, "w") as f:
             f.write(key + "\n")
         print("API key written to %s" % KEY_FILE)
