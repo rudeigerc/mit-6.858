@@ -87,7 +87,7 @@ def check_dbexists(cn, name):
 def check_nodb(cn):
     c = lxc.Container(cn)
     if c.attach_wait(lxc.attach_run_command, ["test", "-e", "/home/student/zoobar/db"]) == 0:
-        fail("Container %s shouldn't have database %s" % (cn, name))
+        fail("Container %s shouldn't have any databases" % cn)
         return False
     return True
 
