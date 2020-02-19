@@ -48,7 +48,11 @@ def info(c):
             if p == '':
                 continue
             r += "\n" + p
-    ipv4 = c.get_config_item('lxc.net.0.ipv4.address')
+    ipv4 = "unknown"
+    try:
+        ipv4 = c.get_config_item('lxc.net.0.ipv4.address')
+    except KeyError:
+        pass
     return "%s: %s, IP %s%s\n" % (c.name, c.state, ipv4, r)
 
 class Container():
@@ -106,6 +110,7 @@ class Container():
             self.errormsg("Failed to configure firewall rule %s" % r_orig)
 
     def make_base(self):
+        os.makedirs('%s/.local/share/lxc' % HOME, exist_ok=True)
         self.infomsg("Creating container")
         if not self.c.create("download", lxc.LXC_CREATE_QUIET,
                         { "dist": "debian",
@@ -137,6 +142,7 @@ class Container():
         ev = ["PATH=%s" % path]
 
         # install packages for zoobar
+        self.run_cmd(["apt-get", "update"], extra_env_vars=ev)
         self.run_cmd(["apt-get", "install", "-y"] + pkgs, extra_env_vars=ev)
 
         # directory for zook
@@ -169,7 +175,7 @@ class Container():
             b = lxc.Container(BASE)
 
         self.infomsg("Creating container")
-        c = b.clone(self.name)
+        c = b.clone(self.name, bdevtype="overlayfs", flags=lxc.LXC_CLONE_SNAPSHOT)
         if not c:
             self.errormsg("Clone failed")
             sys.exit(1)
@@ -241,8 +247,14 @@ def clean(k=None):
     if k == None:
         for k in ct.svcs():
             c = lxc.Container(k)
+            c.shutdown(timeout=0)
+            c.destroy()
+        for k in lxc.list_containers():
+            c = lxc.Container(k)
+            c.shutdown(timeout=0)
             c.destroy()
         c = lxc.Container(BASE)
+        c.shutdown(timeout=0)
         c.destroy()
     else:
         c = lxc.Container(k)

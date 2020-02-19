@@ -117,8 +117,12 @@ def check_comm(src, dst):
         return False
     return True
 
-def dbquery(dbfile, q):
-    conn = sqlite3.connect(dbfile)
+def container_path(name, path):
+    c = lxc.Container(name)
+    return '/proc/%d/root/%s' % (c.init_pid, path)
+
+def dbquery(container, dbfile, q):
+    conn = sqlite3.connect(container_path(container, dbfile))
     cur  = conn.cursor()
     cur.execute(q)
     ret  = cur.fetchall()
@@ -126,21 +130,21 @@ def dbquery(dbfile, q):
     conn.close()
     return ret
 
-def db_tables(dbfile):
-    rows = dbquery(dbfile, "SELECT name FROM sqlite_master WHERE type='table'")
+def db_tables(container, dbfile):
+    rows = dbquery(container, dbfile, "SELECT name FROM sqlite_master WHERE type='table'")
     return [ r[0].lower() for r in rows ]
 
-def column_in_table(dbfile, table, column):
-    rows = dbquery(dbfile, "SELECT sql FROM sqlite_master WHERE type='table' AND name='%s'" % table)
+def column_in_table(container, dbfile, table, column):
+    rows = dbquery(container, dbfile, "SELECT sql FROM sqlite_master WHERE type='table' AND name='%s'" % table)
     return column.lower() in rows[0][0].lower()
 
-def check_db(ex, service, dbfile, table, columns):
-    if not os.path.exists(dbfile):
-        fail(ex, "no db %s" % dbfile)
+def check_db(ex, container, dbfile, table, columns):
+    if not os.path.exists(container_path(container, dbfile)):
+        fail(ex, "no db %s in %s" % (dbfile, container))
         return False
-    if table.lower() not in db_tables(dbfile):
+    if table.lower() not in db_tables(container, dbfile):
         fail(ex, "%s table not present in %s" % (table, dbfile))
-    elif not all([ column_in_table(dbfile, table, c) for c in columns ]):
+    elif not all([ column_in_table(container, dbfile, table, c) for c in columns ]):
         fail(ex, "missing some column in %s table of %s" % (table, dbfile))
     else:
         return True
@@ -179,14 +183,14 @@ def check_ex3():
         ok("Exercise 3: fwrule")
 
 def check_ex4_1():
-    authdb = "/home/student/.local/share/lxc/auth/rootfs/home/student/zoobar/db/cred/cred.db"
-    check_0 = check_db("Exercise 4:", "auth-server.py", authdb,
+    authdb = "/home/student/zoobar/db/cred/cred.db"
+    check_0 = check_db("Exercise 4:", "auth", authdb,
                        "cred", ['password', 'token'])
     return check_0
 
 def check_ex4_2():
-    persondb = "/home/student/.local/share/lxc/dynamic/rootfs/home/student/zoobar/db/person/person.db"
-    if any([ column_in_table(persondb, "person", c) \
+    persondb = "/home/student/zoobar/db/person/person.db"
+    if any([ column_in_table('dynamic', persondb, "person", c) \
                for c in ['password', 'token'] ]):
         fail("Exercise 4:", "person table still has some cred table column")
         return False
@@ -201,26 +205,26 @@ def check_ex5():
         ok("Exercise 5: fwrule")
 
 def check_ex6():
-    dbfile = "/home/student/.local/share/lxc/auth/rootfs/home/student/zoobar/db/cred/cred.db"
-    if not os.path.exists(dbfile):
-        fail("Exercise 6:", "no db %s" % dbfile)
+    dbfile = "/home/student/zoobar/db/cred/cred.db"
+    if not os.path.exists(container_path('auth', dbfile)):
+        fail("Exercise 6:", "no db %s in auth" % dbfile)
         return
-    db = file_read_raw(dbfile)
+    db = file_read_raw(container_path('auth', dbfile))
     if b"supersecretpassword" in db:
         fail("Exercise 6:", "plain-text password in database")
     else:
         ok("Exercise 6")
 
 def check_ex7_1():
-    persondb = "/home/student/.local/share/lxc/dynamic/rootfs/home/student/zoobar/db/person/person.db"
-    if column_in_table(persondb, "person", "zoobars"):
+    persondb = "/home/student/zoobar/db/person/person.db"
+    if column_in_table('dynamic', persondb, "person", "zoobars"):
         fail("Exercise 7:", "person table still has the zoobars column")
         return False
     return True
 
 def check_ex7():
-    bankdb = "/home/student/.local/share/lxc/bank/rootfs/home/student/zoobar/db/bank/bank.db"
-    check_0 = check_db("Exercise 7:", "bank-server.py", bankdb,
+    bankdb = "/home/student/zoobar/db/bank/bank.db"
+    check_0 = check_db("Exercise 7:", "bank", bankdb,
                        "bank", ['zoobars'])
     if check_0 and check_ex7_1():
         ok("Exercise 7")
@@ -431,8 +435,8 @@ def check_granter():
         ok("Profile granter.py")
 
 def check_profile_service():
-    persondb = "/home/student/.local/share/lxc/dynamic/rootfs/home/student/zoobar/db/person/person.db"
-    if column_in_table(persondb, "person", "profile"):
+    persondb = "/home/student/zoobar/db/person/person.db"
+    if column_in_table('dynamic', persondb, "person", "profile"):
         fail("Challenge 3:", "person table still has column profile")
         return False
     return True
