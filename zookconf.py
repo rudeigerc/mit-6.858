@@ -73,6 +73,7 @@ class Container():
             self.errormsg("Failed to start the container")
             sys.exit(1)
 
+        self.c.get_ips(timeout=30)
         self.configure_fw()
 
         self.infomsg("Copying files")
@@ -130,6 +131,7 @@ class Container():
             self.errormsg("Failed to start")
             sys.exit(1)
 
+        self.c.get_ips(timeout=30)
         self.attach_wait(init_dns)
 
         pkgs = ["python3", "python3-lxc",
@@ -184,6 +186,7 @@ class Container():
         self.configure_network(self.conf.lookup('lxcbr'))
 
         self.c.start()
+        self.c.get_ips(timeout=30)
         self.attach_wait(save_hostname(self.name))
         if not self.c.stop():
             self.errormsg("Failed to stop")
