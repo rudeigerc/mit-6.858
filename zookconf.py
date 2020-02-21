@@ -8,7 +8,7 @@ import sys
 import readconf
 import ipaddress
 import collections
-
+import time
 import lxc
 
 #
@@ -73,7 +73,6 @@ class Container():
             self.errormsg("Failed to start the container")
             sys.exit(1)
 
-        self.c.get_ips(timeout=30)
         self.configure_fw()
 
         self.infomsg("Copying files")
@@ -131,7 +130,6 @@ class Container():
             self.errormsg("Failed to start")
             sys.exit(1)
 
-        self.c.get_ips(timeout=30)
         self.attach_wait(init_dns)
 
         pkgs = ["python3", "python3-lxc",
@@ -142,6 +140,13 @@ class Container():
         # update path to include sbin so that apt install will work
         path = "/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/snap/bin:/usr/local/sbin:/sbin:/usr/sbin"
         ev = ["PATH=%s" % path]
+
+        while True:
+            self.run_cmd(["bash", "-c", "systemctl stop networking 2>/dev/null"])
+            r = self.run_cmd(["bash", "-c", "systemctl is-system-running 2>/dev/null | egrep -q '(degraded|running)'"])
+            if r == 0:
+                break
+            time.sleep(1)
 
         # install packages for zoobar
         self.run_cmd(["apt-get", "update"], extra_env_vars=ev)
@@ -186,7 +191,6 @@ class Container():
         self.configure_network(self.conf.lookup('lxcbr'))
 
         self.c.start()
-        self.c.get_ips(timeout=30)
         self.attach_wait(save_hostname(self.name))
         if not self.c.stop():
             self.errormsg("Failed to stop")
