@@ -112,7 +112,7 @@ class Container():
     def make_base(self):
         os.makedirs('%s/.local/share/lxc' % HOME, exist_ok=True)
         self.infomsg("Creating container")
-        if not self.c.create("download", lxc.LXC_CREATE_QUIET,
+        if not self.c.create("download", 0,
                         { "dist": "debian",
                           "release": "stretch",
                           "arch": "amd64" }):
