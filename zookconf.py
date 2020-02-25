@@ -76,7 +76,7 @@ class Container():
         self.configure_fw()
 
         self.infomsg("Copying files")
-        self.dup_dir(".")
+        self.dup_dir(".", excludes=["./zoobar/db"])
 
     def errormsg(self, msg):
         print("%s: ERROR: %s" % (self.name, msg))
@@ -211,8 +211,11 @@ class Container():
         p2 = subprocess.Popen(['lxc-attach', '-n', self.name, '--', 'tar', 'xf', '-', "-C", HOME], stdin=p1.stdout)
         p2.wait()
         
-    def dup_dir(self, host_dir):
-        p1 = subprocess.Popen(["tar", "-c", host_dir], stdout=subprocess.PIPE)
+    def dup_dir(self, host_dir, excludes=[]):
+        exclude_args = []
+        for e in excludes:
+            exclude_args.append('--exclude=%s' % e)
+        p1 = subprocess.Popen(["tar"] + exclude_args + ["-c", host_dir], stdout=subprocess.PIPE)
         p2 = subprocess.Popen(['lxc-attach', '-n', self.name, '--', 'tar', 'xf', '-', "-C", HOME], stdin=p1.stdout)
         p2.wait()
 
