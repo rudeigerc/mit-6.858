@@ -27,7 +27,6 @@
 {% endif %}
 {% endblock %}
 {% block postscript %}
-{% if transfers %}
 <table class="log" align="center">
 <thead>
 <tr><th>Time</th>
@@ -36,13 +35,14 @@
     <th>Amount</th></tr>
 </thead>
 <tbody>
+{% if transfers %}
 {% for transfer in transfers %}
 <tr><td align="center">{{ transfer.time }}</td>
     <td align="center">{{ transfer.sender }}</td>
     <td align="center">{{ transfer.recipient }}</td>
     <td align="center">{{ transfer.amount }}</td></tr>
 {% endfor %}
+{% endif %}
 </tbody>
 </table>
-{% endif %}
 {% endblock %}
