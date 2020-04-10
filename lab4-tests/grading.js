@@ -247,7 +247,7 @@ function passed(msg) {
 }
 exports.passed = passed;
 function manual(expecting) {
-	console.log("[ \u001b[33m????\u001b[39m ]: Check email, expecting string '\u001b[33m" + expecting + "\u001b[39m'")
+	console.log("[ \u001b[33m????\u001b[39m ]: Check log (https://css.csail.mit.edu/6.858/2020/labs/log.php), expecting string '\u001b[33m" + expecting + "\u001b[39m'")
 }
 exports.manual = manual;
 
