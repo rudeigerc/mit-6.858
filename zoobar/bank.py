@@ -11,7 +11,10 @@ def init(username):
     bankdb.add(newbank)
     bankdb.commit()
 
-def transfer(sender, recipient, zoobars):
+def transfer(sender, recipient, zoobars, token):
+    if not auth_client.check_token(sender, token):
+        raise PermissionError()
+
     bankdb = bank_setup()
     senderp = bankdb.query(Bank).get(sender)
     recipientp = bankdb.query(Bank).get(recipient)
