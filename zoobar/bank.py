@@ -2,7 +2,6 @@ from zoodb import *
 from debug import *
 
 import time
-import auth_client
 
 def init(username):
     bankdb = bank_setup()
@@ -11,10 +10,7 @@ def init(username):
     bankdb.add(newbank)
     bankdb.commit()
 
-def transfer(sender, recipient, zoobars, token):
-    if not auth_client.check_token(sender, token):
-        raise PermissionError()
-
+def transfer(sender, recipient, zoobars):
     bankdb = bank_setup()
     senderp = bankdb.query(Bank).get(sender)
     recipientp = bankdb.query(Bank).get(recipient)

@@ -4,10 +4,11 @@ import base64
 import rpclib
 import sys
 import os
+import stat
 import sandboxlib
 import hashlib
 import socket
-import bank
+import bank_client
 import zoodb
 
 sys.path.append(os.getcwd())
@@ -38,11 +39,11 @@ class ProfileAPIServer(rpclib.RpcServer):
     def rpc_get_user_info(self, username):
         return { 'username': self.user,
                  'profile': self.pcode,
-                 'zoobars': bank.balance(username),
+                 'zoobars': bank_client.balance(username),
                }
 
     def rpc_xfer(self, target, zoobars):
-        bank.transfer(self.user, target, zoobars)
+        bank_client.transfer(self.user, target, zoobars, None)
 
 def run_profile(pcode, profile_api_client):
     globals = {'api': profile_api_client}
@@ -50,9 +51,15 @@ def run_profile(pcode, profile_api_client):
 
 class ProfileServer(rpclib.RpcServer):
     def rpc_run(self, pcode, user, visitor):
-        uid = 0
+        uid = 6858
 
-        userdir = '/tmp'
+        userdir = '/tmp/' + user
+        try:
+            os.mkdir(userdir)
+        except OSError:
+            pass
+        os.chmod(userdir, stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR)
+        os.chown(userdir, uid, uid)
 
         (sa, sb) = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM, 0)
         pid = os.fork()
